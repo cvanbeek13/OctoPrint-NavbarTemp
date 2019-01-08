@@ -48,9 +48,21 @@ class NavBarPlugin(octoprint.plugin.StartupPlugin,
         self._checkTempTimer = RepeatedTimer(interval, self.updateSoCTemp, None, None, True)
         self._checkTempTimer.start()
 
+
+    # To try and catch our min temp error, we are adding logging for bed and extruder temps
     def updateSoCTemp(self):
         temp = self.sbc.checkSoCTemp()
-        self._logger.debug("match: %s" % temp)
+        printer_temps = self._printer.get_current_temperatures()
+        if not printer_temps:
+            self._logger.debug("No Extruder and Bed Temperature Data")
+            self._logger.debug("match: %s" % temp)
+            return
+
+        log_line = "SoC: " + temp
+        for key in printer_temps.keys():
+            log_line += " " + key + ": " + key.actual
+
+        self._logger.debug(log_line)
         self._plugin_manager.send_plugin_message(self._identifier,
                                                  dict(isSupported=self.sbc.is_supported,
                                                       soctemp=temp))
