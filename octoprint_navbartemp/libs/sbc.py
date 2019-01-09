@@ -68,7 +68,7 @@ class SBC(object):
         if self.is_supported:
             from sarge import run, Capture
 
-            self._logger.info("Checking SoC internal temperature")
+            self._logger.debug("Checking SoC internal temperature")
             p = run(self.temp_cmd, stdout=Capture())
             if p.returncode == 1:
                 self.is_supported = False
@@ -83,8 +83,6 @@ class SBC(object):
             #
             #     p = "temp=%s'C" % randrange_float(5, 60, 0.1)
 
-            self._logger.debug("response from sarge: %s" % p)
-            self._logger.debug("used pattern: %r" % self.parse_pattern)
             match = re.search(self.parse_pattern, p)
             temp = 0
             if not match:
@@ -92,7 +90,6 @@ class SBC(object):
                 self.is_supported = False
             else:
                 temp = self.parse_tepmerature(match)
-                self._logger.debug("match: %s" % str(temp))
 
             return temp
         return 0

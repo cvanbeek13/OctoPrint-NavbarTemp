@@ -53,15 +53,16 @@ class NavBarPlugin(octoprint.plugin.StartupPlugin,
     def updateSoCTemp(self):
         temp = self.sbc.checkSoCTemp()
         printer_temps = self._printer.get_current_temperatures()
+        self._logger.debug("Found temps: %r" % printer_temps)
 
         log_line = "SoC: " + temp
-        if not printer_temps:
-            self._logger.debug("No Extruder and Bed Temperature Data")
+        if printer_temps is None:
+            self._logger.info("No Extruder and Bed Temperature Data")
         else:
             for key in printer_temps.keys():
                 log_line += " " + key + ": " + key.actual
 
-        self._logger.debug(log_line)
+        self._logger.info(log_line)
         self._plugin_manager.send_plugin_message(self._identifier,
                                                  dict(isSupported=self.sbc.is_supported,
                                                       soctemp=temp))
